@@ -2,7 +2,6 @@
 from woocommerce import API
 import json
 
-
 wcapi = API(
   url="https://krdrinks.eu",
   consumer_key="ck_0d4cca94752e3bad9196767981098c88c73a7662",
