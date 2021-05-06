@@ -145,7 +145,7 @@ class PrestashopApi:
 
         producto = self.get_producto(json=doc_json_by_ean)
 
-        df = pd.DataFrame.from_dict(producto)
+        df = pd.DataFrame.from_dict(doc_json_by_ean)
         df.to_excel("producto_especifico.xlsx")
 
         pass
