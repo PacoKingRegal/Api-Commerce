@@ -137,6 +137,7 @@ class PrestashopApi:
         df = pd.DataFrame.from_dict(doc_json_by_reference)
         df.to_excel("producto_especifico.xlsx")
         
+        #return producto
         #pass
 
     def get_product_by_ean(self, ean):
@@ -147,8 +148,9 @@ class PrestashopApi:
 
         df = pd.DataFrame.from_dict(doc_json_by_ean)
         df.to_excel("producto_especifico.xlsx")
-
-        pass
+        
+        #return producto
+        #pass
     
     def update_producto(self, product_xml, reference):
         '''
@@ -160,13 +162,13 @@ class PrestashopApi:
     def add_producto(self, producto):
         pass
 
-    def fichero_to_csv(self, fichero, referencia = "" ,  salida='output.xlsx'):
+    def fichero_to_csv(self, fichero, valor = "" ,  salida='output.xlsx'):
         '''
             Params: fichero de prestashop a exportar
                     fichero excel a convenir
         '''
         #Los Ficheros se tiene que encontrar aqui para poder guardar las funciones y utilizarlas.
-        FICHEROS = {"Productos" : self.get_products(), "Pedidos" : self.get_orders(), "Referencia" : self.get_product_by_reference(referencia)}
+        FICHEROS = {"Productos" : self.get_products(), "Pedidos" : self.get_orders(), "Referencia" : self.get_product_by_reference(valor), "EAN" : self.get_product_by_ean(valor)}
 
         if fichero in FICHEROS:
             lista = FICHEROS[fichero]
