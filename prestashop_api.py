@@ -10,30 +10,31 @@ class PrestashopApi:
         self.key = key
         
     def get_producto(self, json):
-        for elem in json ["prestashop"]["products"]["product"]:
-            try:  
-                #Se han comentado los campos que no se necesitan.  
-                articulo = {}
-    
-                articulo['id_articulo'] = elem['id']
-                articulo['rererence'] = elem['reference']
-                articulo['id_categoria'] = elem['id_category_default']['@xlink:href']
-                articulo['ean13'] = elem['ean13']
-                articulo['precio'] = elem['price']
-                articulo['peso'] = elem['weight']
-                articulo['meta_descripcion'] = elem['meta_description']['language']['#text']
-                articulo['meta_keywords'] = elem['meta_keywords']['language']['#text']
-                articulo['meta_title'] = elem['meta_title']['language']['#text']
-                articulo['nombre'] = elem['name']['language']['#text']
-                articulo['descripcion'] = elem['description']['language']['#text']
-                articulo['descripcion_short'] = elem['description_short']['language']['#text']
+        articulos = []
+
+        if json:
+
+            articulo = {}
+            articulo['id_articulo'] =  json["prestashop"]["products"]["product"]['id']
+            articulo['reference'] = json["prestashop"]["products"]["product"]['reference']
+            articulo['id_categoria'] = json["prestashop"]["products"]["product"]['id_category_default']['@xlink:href']
+            articulo['ean13'] = json["prestashop"]["products"]["product"]['ean13']
+            articulo['precio'] =  json["prestashop"]["products"]["product"]['price']
+            articulo['peso'] =  json["prestashop"]["products"]["product"]['weight']
+            articulo['meta_descripcion'] =  json["prestashop"]["products"]["product"]['meta_description']['language']['#text']
+            articulo['meta_keywords'] =  json["prestashop"]["products"]["product"]['meta_keywords']['language']['#text']
+            articulo['meta_title'] =  json["prestashop"]["products"]["product"]['meta_title']['language']['#text']
+            articulo['nombre'] =  json["prestashop"]["products"]["product"]['name']['language']['#text']
+            articulo['descripcion'] =  json["prestashop"]["products"]["product"]['description']['language']['#text']
+            articulo['descripcion_short'] =  json["prestashop"]["products"]["product"]['description_short']['language']['#text']
+                    
+                    #assosiations
+            articulos.append(articulo)
                 
-                #assosiations
-                # Guarda los Articulos que tienen EAN, que son los de interés.
-                print(articulo)
-                
-            except:
-                pass
+            return articulos
+        
+        else:
+            print("No corresponde a ningun articulo")
 
     def _set_url_request(self, path):
         return self.url_base + '/' + path
@@ -86,7 +87,7 @@ class PrestashopApi:
                 articulo = {}
     
                 articulo['id_articulo'] = elem['id']
-                articulo['rererence'] = elem['reference']
+                articulo['reference'] = elem['reference']
                 articulo['id_categoria'] = elem['id_category_default']['@xlink:href']
                 #articulo['texto'] = elem['id_category_default']['#text']
                 #articulo['supplier_reference'] = elem['supplier_reference']
@@ -132,23 +133,35 @@ class PrestashopApi:
         # Supongo que habrá que utilizar filter
         doc_json_by_reference = self.get_filter(option="reference", value=reference)
 
-        producto = self.get_producto(json=doc_json_by_reference)
-
-        df = pd.DataFrame.from_dict(doc_json_by_reference)
-        df.to_excel("producto_especifico.xlsx")
+        productos = self.get_products()
+        for elem in productos:
+            if elem['reference'] != reference:
+               pass
+            else:
+                producto = self.get_producto(json=doc_json_by_reference)
+                return producto
+        print ("La referencia : " + str(reference) + " no corresponde a ningun producto.")
         
         #return producto
         #pass
 
     def get_product_by_ean(self, ean):
         # Supongo que habrá que utilizar filter
+
+        '''
         doc_json_by_ean = self.get_filter(option="ean13", value=ean)
 
-        producto = self.get_producto(json=doc_json_by_ean)
+        productos = self.get_products()
+        for elem in productos:
+            if elem['ean13'] != ean:
+               pass
+            else:
+                producto_ean = self.get_producto(json=doc_json_by_ean)
+                return producto_ean
 
-        df = pd.DataFrame.from_dict(doc_json_by_ean)
-        df.to_excel("producto_especifico.xlsx")
-        
+        print ("El ean13 : " + str(ean) + " no corresponde a ningun producto.")
+        '''
+
         #return producto
         #pass
     
@@ -168,23 +181,24 @@ class PrestashopApi:
                     fichero excel a convenir
         '''
         #Los Ficheros se tiene que encontrar aqui para poder guardar las funciones y utilizarlas.
-        FICHEROS = {"Productos" : self.get_products(), "Pedidos" : self.get_orders(), "Referencia" : self.get_product_by_reference(valor), "EAN" : self.get_product_by_ean(valor)}
+        #No se porque, pero si encuentra el fichero, los ejecuta todos, eso crea que de errores.
+        FICHEROS = {"Productos" : self.get_products(), "Pedidos" : self.get_orders(), "Referencia" : self.get_product_by_reference(valor)}
 
         if fichero in FICHEROS:
             lista = FICHEROS[fichero]
             df = pd.DataFrame.from_dict(lista)
             df.to_excel(salida)
         else:
-            print("Ficchero no encontrado")
+            print("Fichero no encontrado")
 
         
 
 api = PrestashopApi('http://lafabricadegolosinas.com/api', 'K23MFEIG5L7C41U3LNY377JNC9WV1UDE')
 
-#print(api.get_product_by_ean(reference="9318590025002"))
+#print(api.get_product_by_reference(reference=""))
 #print(api.get_product_by_ean(ean="8437006219600"))
 
-#api.fichero_to_csv(fichero="Productos", salida="productes.xlsx")
+api.fichero_to_csv(fichero="Referencia", valor="0200394023001", salida="producto_especifico.xlsx")
 #api.fichero_to_csv(fichero="Pedidos", salida="pedidos.xlsx")
 
 
