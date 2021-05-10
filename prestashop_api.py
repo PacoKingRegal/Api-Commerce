@@ -140,7 +140,15 @@ class PrestashopApi:
                 pedido['precio_iva'] = elem['total_shipping']
                 pedido['precio_total'] = elem['total_paid']
                 pedido['reference'] = elem['reference']
+
+                '''
+                En caso de querer solo los pedidos efectuados, pedidos reales de la empresa.
+                if pedido['numero_pedido']:
+                    pedidos.append(pedido)
+                '''
+
                 pedidos.append(pedido)
+               
             except:
                 pass
         return pedidos
