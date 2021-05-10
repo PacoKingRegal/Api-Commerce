@@ -15,11 +15,11 @@ class PrestashopApi:
         if json:
 
             articulo = {}
-            articulo['id_articulo'] =  json["prestashop"]["products"]["product"]['id']
+            articulo['id_articulo'] = json["prestashop"]["products"]["product"]['id']
             articulo['reference'] = json["prestashop"]["products"]["product"]['reference']
             articulo['id_categoria'] = json["prestashop"]["products"]["product"]['id_category_default']['@xlink:href']
             articulo['ean13'] = json["prestashop"]["products"]["product"]['ean13']
-            articulo['precio'] =  json["prestashop"]["products"]["product"]['price']
+            articulo['precio'] = json["prestashop"]["products"]["product"]['price']
             articulo['peso'] =  json["prestashop"]["products"]["product"]['weight']
             articulo['meta_descripcion'] =  json["prestashop"]["products"]["product"]['meta_description']['language']['#text']
             articulo['meta_keywords'] =  json["prestashop"]["products"]["product"]['meta_keywords']['language']['#text']
@@ -28,7 +28,6 @@ class PrestashopApi:
             articulo['descripcion'] =  json["prestashop"]["products"]["product"]['description']['language']['#text']
             articulo['descripcion_short'] =  json["prestashop"]["products"]["product"]['description_short']['language']['#text']
                     
-                    #assosiations
             articulos.append(articulo)
                 
             return articulos
@@ -86,7 +85,7 @@ class PrestashopApi:
                 #Se han comentado los campos que no se necesitan.  
                 articulo = {}
     
-                articulo['id_articulo'] = elem['id']
+                articulo['id'] = elem['id']
                 articulo['reference'] = elem['reference']
                 articulo['id_categoria'] = elem['id_category_default']['@xlink:href']
                 #articulo['texto'] = elem['id_category_default']['#text']
@@ -124,10 +123,28 @@ class PrestashopApi:
         return articulos
         
     def get_orders(self):
-        #doc_json_orders = self.get_data(option="order")
+        #Depende de la API para funcionar, a veces funciona, otras veces dice que no existe, ¿puede ser por tener mas de 4000 pedidos?
+        doc_json_orders = self.get_data(option="orders")
 
-        #print(doc_json_orders)
-        pass
+        pedidos = []
+
+        for elem in doc_json_orders["prestashop"]["orders"]["order"]:
+            try:
+                pedido = {}
+                pedido['id'] = elem['id']
+                pedido['numero_pedido'] = elem['delivery_number']
+                pedido['fecha_pedido'] = elem['date_add']
+                pedido['fecha_entrega'] = elem['delivery_date']
+                pedido['metodo_pago'] = elem['payment']
+                pedido['precio_total_productos'] = elem['total_products_wt']
+                pedido['precio_iva'] = elem['total_shipping']
+                pedido['precio_total'] = elem['total_paid']
+                pedido['reference'] = elem['reference']
+                pedidos.append(pedido)
+            except:
+                pass
+        return pedidos
+
 
     def get_product_by_reference(self, reference):
         # Supongo que habrá que utilizar filter
@@ -148,7 +165,6 @@ class PrestashopApi:
     def get_product_by_ean(self, ean):
         # Supongo que habrá que utilizar filter
 
-        '''
         doc_json_by_ean = self.get_filter(option="ean13", value=ean)
 
         productos = self.get_products()
@@ -157,10 +173,12 @@ class PrestashopApi:
                pass
             else:
                 producto_ean = self.get_producto(json=doc_json_by_ean)
-                return producto_ean
+                df = pd.DataFrame.from_dict(producto_ean)
+                df.to_excel(producto_especifico.xlsx)
+                #return producto_ean
 
         print ("El ean13 : " + str(ean) + " no corresponde a ningun producto.")
-        '''
+        
 
         #return producto
         #pass
@@ -195,11 +213,12 @@ class PrestashopApi:
 
 api = PrestashopApi('http://lafabricadegolosinas.com/api', 'K23MFEIG5L7C41U3LNY377JNC9WV1UDE')
 
-#print(api.get_product_by_reference(reference=""))
+#print(api.get_product_by_reference(reference="0200394023001"))
 #print(api.get_product_by_ean(ean="8437006219600"))
+#print(api.get_orders())
 
-api.fichero_to_csv(fichero="Referencia", valor="0200394023001", salida="producto_especifico.xlsx")
-#api.fichero_to_csv(fichero="Pedidos", salida="pedidos.xlsx")
+#api.fichero_to_csv(fichero="Referencia", salida="producto_especifico.xlsx")
+api.fichero_to_csv(fichero="Pedidos", salida="pedidos.xlsx")
 
 
 
