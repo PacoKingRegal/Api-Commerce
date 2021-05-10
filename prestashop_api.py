@@ -173,9 +173,7 @@ class PrestashopApi:
                pass
             else:
                 producto_ean = self.get_producto(json=doc_json_by_ean)
-                df = pd.DataFrame.from_dict(producto_ean)
-                df.to_excel(producto_especifico.xlsx)
-                #return producto_ean
+                return producto_ean
 
         print ("El ean13 : " + str(ean) + " no corresponde a ningun producto.")
         
@@ -200,7 +198,7 @@ class PrestashopApi:
         '''
         #Los Ficheros se tiene que encontrar aqui para poder guardar las funciones y utilizarlas.
         #No se porque, pero si encuentra el fichero, los ejecuta todos, eso crea que de errores.
-        FICHEROS = {"Productos" : self.get_products(), "Pedidos" : self.get_orders(), "Referencia" : self.get_product_by_reference(valor)}
+        FICHEROS = {"Productos" : self.get_products(), "Pedidos" : self.get_orders(), "Referencia" : self.get_product_by_reference(valor), "EAN" : self.get_product_by_ean(valor)}
 
         if fichero in FICHEROS:
             lista = FICHEROS[fichero]
@@ -214,11 +212,11 @@ class PrestashopApi:
 api = PrestashopApi('http://lafabricadegolosinas.com/api', 'K23MFEIG5L7C41U3LNY377JNC9WV1UDE')
 
 #print(api.get_product_by_reference(reference="0200394023001"))
-#print(api.get_product_by_ean(ean="8437006219600"))
+#print(api.get_product_by_ean(ean="8412541160525"))
 #print(api.get_orders())
 
-#api.fichero_to_csv(fichero="Referencia", salida="producto_especifico.xlsx")
-api.fichero_to_csv(fichero="Pedidos", salida="pedidos.xlsx")
+api.fichero_to_csv(fichero="EAN",valor="8412541160525", salida="producto_especifico.xlsx")
+#api.fichero_to_csv(fichero="Pedidos", salida="pedidos.xlsx")
 
 
 
