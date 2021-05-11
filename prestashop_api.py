@@ -46,6 +46,7 @@ class PrestashopApi:
         '''
             Extraer los datos deseados de la API
             Params: elementos que queremos mostrar (products, order, etc...)
+            [id,reference,id_category_default,ean13,price,meta_description,meta_keywords,meta_title,name,description,description_short]
         '''
         url = self.url_base + '/'+ option +'?display=full&output_format=XML&ws_key=' + self.key
         params = {}
@@ -153,39 +154,25 @@ class PrestashopApi:
                 pass
         return pedidos
 
-
-    def get_product_by_reference(self, reference):
-        # Supongo que habrá que utilizar filter
-        doc_json_by_reference = self.get_filter(option="reference", value=reference)
-
-        productos = self.get_products()
-        for elem in productos:
-            if elem['reference'] != reference:
-               pass
-            else:
-                producto = self.get_producto(json=doc_json_by_reference)
-                return producto
-        print ("La referencia : " + str(reference) + " no corresponde a ningun producto.")
-        
-        #return producto
-        #pass
-
-    def get_product_by_ean(self, ean):
+    def get_product_by(self, campo, valor):
         # Supongo que habrá que utilizar filter
 
-        doc_json_by_ean = self.get_filter(option="ean13", value=ean)
+        doc_json_by = self.get_filter(option=campo, value=valor)
 
         productos = self.get_products()
-        for elem in productos:
-            if elem['ean13'] != ean:
-               pass
-            else:
-                producto_ean = self.get_producto(json=doc_json_by_ean)
-                return producto_ean
 
-        print ("El ean13 : " + str(ean) + " no corresponde a ningun producto.")
+        try:
+            for elem in productos:
+                if elem[campo] != valor:
+                    pass
+                else:
+                    producto_filter = self.get_producto(json=doc_json_by)
+                    return producto_filter
+        except:
+            pass
+            
+        print ("El " + str(campo) + " : " + str(valor) + " no corresponde a ningun producto.") 
         
-
         #return producto
         #pass
     
@@ -197,7 +184,7 @@ class PrestashopApi:
         pass
 
     def add_producto(self, producto):
-        url = self.url_base + '/products?display=full&output_format=XML&ws_key=' + self.key + "/put"
+        url = self.url_base + '/products?display=full&output_format=XML&ws_key=' + self.key + "/post"
         params = {}
 
         
@@ -207,19 +194,19 @@ class PrestashopApi:
         print(url)
         print(new_product)
 
-        response = requests.put(url, data=new_product, headers={'Conten-Type':'application/xml'})
+        response = requests.post(url, data=new_product, headers={'Conten-Type':'text/xml'})
         print(response)
 
         pass
 
-    def fichero_to_csv(self, fichero, valor = "" ,  salida='output.xlsx'):
+    def fichero_to_csv(self, fichero, campo="", valor = "" ,  salida='output.xlsx'):
         '''
             Params: fichero de prestashop a exportar
                     fichero excel a convenir
         '''
         #Los Ficheros se tiene que encontrar aqui para poder guardar las funciones y utilizarlas.
         #No se porque, pero si encuentra el fichero, los ejecuta todos, eso crea que de errores.
-        FICHEROS = {"Productos" : self.get_products(), "Pedidos" : self.get_orders(), "Referencia" : self.get_product_by_reference(valor), "EAN" : self.get_product_by_ean(valor)}
+        FICHEROS = {"Productos" : self.get_products(), "Filter": self.get_product_by(campo=campo, valor=valor)}
 
         if fichero in FICHEROS:
             lista = FICHEROS[fichero]
@@ -234,10 +221,10 @@ api = PrestashopApi('http://lafabricadegolosinas.com/api', 'K23MFEIG5L7C41U3LNY3
 
 #print(api.get_product_by_reference(reference="0200394023001"))
 #print(api.get_product_by_ean(ean="123456789"))
-print(api.add_producto(producto="producto.xml"))
+#print(api.add_producto(producto="producto.xml"))
 
-#api.fichero_to_csv(fichero="EAN",valor="8412541160525", salida="producto_especifico.xlsx")
-#api.fichero_to_csv(fichero="Pedidos", salida="pedidos.xlsx")
+api.fichero_to_csv(fichero="Filter",campo="reference",valor="21554", salida="producto_especifico.xlsx")
+#api.fichero_to_csv(fichero="Productos", salida="productes.xlsx")
 
 
 
