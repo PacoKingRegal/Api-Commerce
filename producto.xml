@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+<product>
+<ean13>
+123456789
+</ean13>
+<id_shop_default>
+<!--[Default poner[1]]-->
+1
+</id_shop_default>
+<is_virtual>
+<!--[Default poner[0]]-->
+0
+</is_virtual>
+<state>
+<!--[Default poner[1]]-->
+1
+</state>
+<online_only>
+<!--[Default poner[0]]-->
+0
+</online_only>
+<low_stock_alert>
+<!--[Default poner[0]]-->
+0
+</low_stock_alert>
+<price>
+<!--[Default poner[0.000000]]-->
+2.5
+</price>
+<wholesale_price>
+<!--[Default poner[0.000000]]-->
+3.5
+</wholesale_price>
+<active>
+<!--[Default poner[1]]-->
+1
+</active>
+<available_for_order>
+<!--[Default poner[1]]-->
+1
+</available_for_order>
+<show_price>
+<!--[Default poner[1]]-->
+1
+</show_price>
+<indexed>
+<!--[Default poner[1]]-->
+1
+</indexed>
+<link_rewrite>
+<language id="1">
+<!--[Default poner[1]]-->
+prueba-1x29-g
+</language>
+</link_rewrite>
+<name>
+<language id="1">
+<!--[Informacion[ARTICULO NUEVO]]-->
+Prueba de ARTICULO
+</language>
+</name>
+</product>
+</prestashop>

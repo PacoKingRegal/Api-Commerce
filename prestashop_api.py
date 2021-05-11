@@ -197,6 +197,19 @@ class PrestashopApi:
         pass
 
     def add_producto(self, producto):
+        url = self.url_base + '/products?display=full&output_format=XML&ws_key=' + self.key + "/put"
+        params = {}
+
+        
+        xml=open(producto)
+        new_product = xmltodict.parse(xml.read())
+
+        print(url)
+        print(new_product)
+
+        response = requests.put(url, data=new_product, headers={'Conten-Type':'application/xml'})
+        print(response)
+
         pass
 
     def fichero_to_csv(self, fichero, valor = "" ,  salida='output.xlsx'):
@@ -220,10 +233,10 @@ class PrestashopApi:
 api = PrestashopApi('http://lafabricadegolosinas.com/api', 'K23MFEIG5L7C41U3LNY377JNC9WV1UDE')
 
 #print(api.get_product_by_reference(reference="0200394023001"))
-#print(api.get_product_by_ean(ean="8412541160525"))
-#print(api.get_orders())
+#print(api.get_product_by_ean(ean="123456789"))
+print(api.add_producto(producto="producto.xml"))
 
-api.fichero_to_csv(fichero="EAN",valor="8412541160525", salida="producto_especifico.xlsx")
+#api.fichero_to_csv(fichero="EAN",valor="8412541160525", salida="producto_especifico.xlsx")
 #api.fichero_to_csv(fichero="Pedidos", salida="pedidos.xlsx")
 
 
