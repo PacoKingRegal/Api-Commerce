@@ -3,6 +3,7 @@ import xmltodict
 import pandas as pd
 import json
 
+
 class PrestashopApi:
     CORRECT_REQUEST = (200, 201)
         
