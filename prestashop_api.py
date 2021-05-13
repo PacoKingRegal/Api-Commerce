@@ -1,6 +1,7 @@
 import requests
 import xmltodict
 import pandas as pd
+import json
 
 class PrestashopApi:
     CORRECT_REQUEST = (200, 201)
@@ -125,33 +126,59 @@ class PrestashopApi:
         
     def get_orders(self):
         #Depende de la API para funcionar, a veces funciona, otras veces dice que no existe, ¿puede ser por tener mas de 4000 pedidos?
-        doc_json_orders = self.get_data(option="orders")
+        url = "http://lafabricadegolosinas.com/api/orders/?display=full&filter[date_add]=[2021-01-1,2021-5-31]&date=1&output_format=XML&ws_key=K23MFEIG5L7C41U3LNY377JNC9WV1UDE"
+        params = {}
+        print(url)
+
+        response = requests.get(url, params=params)
+
+        content = response.content
+        doc_json_orders = xmltodict.parse(content)
 
         pedidos = []
-
         for elem in doc_json_orders["prestashop"]["orders"]["order"]:
             try:
                 pedido = {}
-                pedido['id'] = elem['id']
-                pedido['numero_pedido'] = elem['delivery_number']
-                pedido['fecha_pedido'] = elem['date_add']
-                pedido['fecha_entrega'] = elem['delivery_date']
-                pedido['metodo_pago'] = elem['payment']
-                pedido['precio_total_productos'] = elem['total_products_wt']
-                pedido['precio_iva'] = elem['total_shipping']
-                pedido['precio_total'] = elem['total_paid']
+                pedido['id_address_delivery'] = elem['id_address_delivery']['#text']
+                pedido['id_address_invoice'] = elem['id_address_invoice']['#text']
+                pedido['id_cart'] = elem['id_cart']['#text']
+                pedido['id_customer'] = elem['id_customer']['#text']
+                pedido['current_state'] = elem['current_state']['#text']
+                pedido['valid'] = elem['valid']
+                pedido['date_add'] = elem['date_add']
+                pedido['date_upd'] = elem['date_upd']
+                pedido['shipping_number'] = elem['shipping_number']['@notFilterable']
+                pedido['total_paid'] = elem['total_paid']
                 pedido['reference'] = elem['reference']
+
+                
+                '''
+                print(elem['associations']) 
+                for linea in elem['associations']['order_rows']['order_row']:
+                    print(linea)           
+                '''
+
+                productos_list = []
+                for productos in elem["associations"]["order_rows"]["order_row"]:
+                    producto = {}
+                    producto["product_name"] = productos["product_name"]
+                    producto["product_reference"] = productos["product_reference"]
+                    producto["product_price"] = productos["product_price"] 
+                
+                    productos_list.append(producto)
+
+                pedido['productos'] = productos_list
 
                 '''
                 En caso de querer solo los pedidos efectuados, pedidos reales de la empresa.
-                if pedido['numero_pedido']:
-                    pedidos.append(pedido)
                 '''
-
-                pedidos.append(pedido)
+                if elem["delivery_number"] == "0":
+                    pedidos.append(pedido)
                
             except:
                 pass
+        
+        print(pedidos)
         return pedidos
 
     def get_product_by(self, campo, valor):
@@ -184,7 +211,7 @@ class PrestashopApi:
         pass
 
     def add_producto(self, producto):
-        url = self.url_base + '/products?display=full&output_format=XML&ws_key=' + self.key + "/post"
+        url = self.url_base + '/products?display=full&output_format=XML&ws_key=' + self.key + '/post'
         params = {}
 
         
@@ -206,7 +233,7 @@ class PrestashopApi:
         '''
         #Los Ficheros se tiene que encontrar aqui para poder guardar las funciones y utilizarlas.
         #No se porque, pero si encuentra el fichero, los ejecuta todos, eso crea que de errores.
-        FICHEROS = {"Productos" : self.get_products(), "Filter": self.get_product_by(campo=campo, valor=valor)}
+        FICHEROS = {"Productos" : self.get_products(), "Filter": self.get_product_by(campo=campo, valor=valor), "Pedidos": self.get_orders()}
 
         if fichero in FICHEROS:
             lista = FICHEROS[fichero]
@@ -215,7 +242,24 @@ class PrestashopApi:
         else:
             print("Fichero no encontrado")
 
+    def fichero_to_json(self,fichero, campo="", valor = "", json_f="sample.json"):
+        #FICHEROS = {"Productos" : self.get_products(), "Filter": self.get_product_by(campo=campo, valor=valor), "Pedidos": self.get_orders(), "Prueba": print("Ha fallat")}
         
+        FICHEROS = {"Productos" : 1, "Filter": 3, "Pedidos": 2}
+        
+        
+
+        print(fichero)
+        if fichero in FICHEROS:
+            if FICHEROS[fichero] == 1:
+                 lista = self.get_products()
+            elif FICHEROS[fichero] ==2:
+                lista = self.get_orders()
+                
+            with open(json_f, "w") as outfile: 
+                json.dump(lista, outfile)
+        else:
+            print("Fichero no encontrado")
 
 api = PrestashopApi('http://lafabricadegolosinas.com/api', 'K23MFEIG5L7C41U3LNY377JNC9WV1UDE')
 
@@ -223,8 +267,9 @@ api = PrestashopApi('http://lafabricadegolosinas.com/api', 'K23MFEIG5L7C41U3LNY3
 #print(api.get_product_by_ean(ean="123456789"))
 #print(api.add_producto(producto="producto.xml"))
 
-api.fichero_to_csv(fichero="Filter",campo="reference",valor="21554", salida="producto_especifico.xlsx")
-#api.fichero_to_csv(fichero="Productos", salida="productes.xlsx")
+#api.fichero_to_csv(fichero="Filter",campo="reference",valor="21554", salida="producto_especifico.xlsx")
+#api.fichero_to_csv(fichero="Pedidos",salida="pedidos.xlsx")
+api.fichero_to_json(fichero="Productos", json_f="productes.json")
 
 
 
