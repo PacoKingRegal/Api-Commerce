@@ -3,6 +3,7 @@ import xmltodict
 import pandas as pd
 import json
 
+
 class PrestashopApi:
     CORRECT_REQUEST = (200, 201)
         
@@ -14,7 +15,6 @@ class PrestashopApi:
         articulos = []
 
         if json:
-
             articulo = {}
             articulo['id_articulo'] = json["prestashop"]["products"]["product"]['id']
             articulo['reference'] = json["prestashop"]["products"]["product"]['reference']
@@ -75,10 +75,9 @@ class PrestashopApi:
         doc_json_by_filter = xmltodict.parse(content_filter)
         return doc_json_by_filter
 
-    def get_products(self):
+    def get_products(self, campos=[]):
         doc_json_products = self.get_data(option="products")
-
-        #print(doc_json)
+        
         articulos = []
 
         for elem in doc_json_products["prestashop"]["products"]["product"]:
@@ -86,7 +85,6 @@ class PrestashopApi:
             try:  
                 #Se han comentado los campos que no se necesitan.  
                 articulo = {}
-    
                 articulo['id'] = elem['id']
                 articulo['reference'] = elem['reference']
                 articulo['id_categoria'] = elem['id_category_default']['@xlink:href']
@@ -116,15 +114,21 @@ class PrestashopApi:
                 
                 #assosiations
                 # Guarda los Articulos que tienen EAN, que son los de interés.
+
                 if articulo['ean13']:
-                    articulos.append(articulo)
+                    if len(campos) > 0:
+                        articulo_dict = {k:articulo[k] for k in campos if k in articulo}
+                        articulos.append(articulo_dict)
+                    else:
+                        articulos.append(articulo)
             
             except:
                 pass
-
+        
+        print(articulos)
         return articulos
         
-    def get_orders(self):
+    def get_orders(self, campos=[]):
         #Depende de la API para funcionar, a veces funciona, otras veces dice que no existe, ¿puede ser por tener mas de 4000 pedidos?
         url = "http://lafabricadegolosinas.com/api/orders/?display=full&filter[date_add]=[2021-01-1,2021-5-31]&date=1&output_format=XML&ws_key=K23MFEIG5L7C41U3LNY377JNC9WV1UDE"
         params = {}
@@ -152,11 +156,7 @@ class PrestashopApi:
                 pedido['reference'] = elem['reference']
 
                 
-                '''
-                print(elem['associations']) 
-                for linea in elem['associations']['order_rows']['order_row']:
-                    print(linea)           
-                '''
+                
 
                 productos_list = []
                 for productos in elem["associations"]["order_rows"]["order_row"]:
@@ -173,12 +173,17 @@ class PrestashopApi:
                 En caso de querer solo los pedidos efectuados, pedidos reales de la empresa.
                 '''
                 if elem["delivery_number"] == "0":
-                    pedidos.append(pedido)
+                    if len(campos) > 0:
+                        pedidos_dict = {k: pedido[k] for k in campos if k in pedido}
+                        pedidos.append(pedidos_dict)
+                    else:
+                        pedidos.append(pedido)
+
+                    
                
             except:
                 pass
         
-        print(pedidos)
         return pedidos
 
     def get_product_by(self, campo, valor):
@@ -211,7 +216,7 @@ class PrestashopApi:
         pass
 
     def add_producto(self, producto):
-        url = self.url_base + '/products?display=full&output_format=XML&ws_key=' + self.key + '/post'
+        url = self.url_base + '/products?display=full&output_format=XML&ws_key=' + self.key + "/post"
         params = {}
 
         
@@ -221,7 +226,7 @@ class PrestashopApi:
         print(url)
         print(new_product)
 
-        response = requests.post(url, data=new_product, headers={'Conten-Type':'text/xml'})
+        response = requests.post(url, data=new_product, headers={'Conten-Type': 'text/xml'})
         print(response)
 
         pass
@@ -242,34 +247,35 @@ class PrestashopApi:
         else:
             print("Fichero no encontrado")
 
-    def fichero_to_json(self,fichero, campo="", valor = "", json_f="sample.json"):
+    def fichero_to_json(self,fichero, campo="", valor = "", json_f="sample.json", campos=[]):
         #FICHEROS = {"Productos" : self.get_products(), "Filter": self.get_product_by(campo=campo, valor=valor), "Pedidos": self.get_orders(), "Prueba": print("Ha fallat")}
         
         FICHEROS = {"Productos" : 1, "Filter": 3, "Pedidos": 2}
-        
-        
 
-        print(fichero)
         if fichero in FICHEROS:
             if FICHEROS[fichero] == 1:
-                 lista = self.get_products()
+                 lista = self.get_products(campos=campos)
             elif FICHEROS[fichero] ==2:
                 lista = self.get_orders()
                 
             with open(json_f, "w") as outfile: 
-                json.dump(lista, outfile)
+                json.dump(lista, outfile, separators=(',', ':'))
         else:
             print("Fichero no encontrado")
 
-api = PrestashopApi('http://lafabricadegolosinas.com/api', 'K23MFEIG5L7C41U3LNY377JNC9WV1UDE')
+
+api = PrestashopApi('http://lafabricadegolosinas.com/api','K23MFEIG5L7C41U3LNY377JNC9WV1UDE')
 
 #print(api.get_product_by_reference(reference="0200394023001"))
 #print(api.get_product_by_ean(ean="123456789"))
-#print(api.add_producto(producto="producto.xml"))
+print(api.add_producto(producto="producto.xml"))
 
 #api.fichero_to_csv(fichero="Filter",campo="reference",valor="21554", salida="producto_especifico.xlsx")
 #api.fichero_to_csv(fichero="Pedidos",salida="pedidos.xlsx")
-api.fichero_to_json(fichero="Productos", json_f="productes.json")
+
+#api.fichero_to_json(fichero="Productos", json_f="productes.json")
+
+#api.fichero_to_json(fichero="Pedidos", json_f="pedidos_filtro.json", campos=['id_address_delivery', 'reference', 'total_paid', 'shipping_number'])
 
 
 

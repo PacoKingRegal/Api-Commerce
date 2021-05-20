@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 from woocommerce import API
+import xmltodict
+import pandas as pd
 import json
 
 
@@ -17,6 +19,7 @@ wcapi = API(
 #data = { "slug" : "ron-blanco-dale-cana-formato-pet"}
 
 # No modifica precio
+'''
 data = { "price" : "0.95"}
 
 a = wcapi.put("products/1999", data)
@@ -33,38 +36,34 @@ print(product["slug"])
 #elem = [i for i in response if i["id"] == 1999]
 #print(elem)
 '''
-'''
 response = wcapi.get('products').json()
+print(response)
 
-
-dict1 = {}
+productos = []
 
 
 
 
 for elem in response:
-    print('-----------')
-    #print(elem)
-    print('El id es: ' + str(elem["id"]))
-    print(elem["name"])
-    print(elem["price"])
-    print(elem["regular_price"])
+    producto = {}
 
-    print(elem["slug"])
-    dict1['clave'] = elem["id"]
-    dict1['precio'] = elem["price"]
+    producto["id"] = elem["id"]
+    producto["name"] = elem["name"]
+    producto["price"] = elem["price"]
+    producto["regular_price"] = elem["regular_price"]
+    productos.append(producto)
 
-print(dict1)
+df = pd.DataFrame.from_dict(productos)
+df.to_excel("productos_wc.xlsx")
+
+print(productos)
 
 
-for i, v in dict1.items():
-    print(i, v)
 '''
-    
+
 #print(elem["permalink"])
 
-
-'''
 orders = wcapi.get('orders').json()
 print(orders)
+
 '''
