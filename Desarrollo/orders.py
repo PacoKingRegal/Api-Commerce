@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from woocommerce import API
 import json
+import pandas as pd
 
 
 wcapi = API(
@@ -19,6 +20,7 @@ def get_orders(status=""):
     status = (pending, processing, on-hold, completed, cancelled, refunded, failed and trash)
     '''
     orders = wcapi.get('orders').json()
+    print(orders)
     orders_list = []
     for order in orders:
         order_dict = {}
@@ -39,6 +41,10 @@ def get_orders(status=""):
 
     if status != "":
         return [d for d in orders_list if d["status"] == status]
+    
+    df = pd.DataFrame.from_dict(orders_list)
+    df.to_excel("pedidos_wc.xlsx")
+    
     return orders_list
 
 

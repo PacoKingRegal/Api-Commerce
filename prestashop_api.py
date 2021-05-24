@@ -273,8 +273,8 @@ print(api.add_producto(producto="producto.xml"))
 #api.fichero_to_csv(fichero="Filter",campo="reference",valor="21554", salida="producto_especifico.xlsx")
 #api.fichero_to_csv(fichero="Pedidos",salida="pedidos.xlsx")
 
-api.fichero_to_json(fichero="Productos", json_f="productes.json")
-api.fichero_to_json(fichero="Productos", json_f="productes.json", campos=['id', 'reference', 'ean13', 'precio'])
+#api.fichero_to_json(fichero="Productos", json_f="productes.json")
+#api.fichero_to_json(fichero="Productos", json_f="productes.json", campos=['id', 'reference', 'ean13', 'precio'])
 
 
 
