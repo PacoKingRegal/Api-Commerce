@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from requests.api import get
 from woocommerce import API
 import json
 import pandas as pd
@@ -51,7 +52,6 @@ def get_orders( status=""):
     '''
     fichero_to_json(lista=orders_list)
     return orders_list
-
 
 for order in get_orders():
     print(order)

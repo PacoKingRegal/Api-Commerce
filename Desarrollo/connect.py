@@ -14,11 +14,6 @@ wcapi = API(
   query_string_auth=True
 )
 
-
-
-#data = { "slug" : "ron-blanco-dale-cana-formato-pet"}
-
-# No modifica precio
 '''
 data = { "price" : "0.95"}
 
@@ -42,24 +37,28 @@ def fichero_to_json(json_f="sample.json", lista=""):
     with open(json_f, "w") as outfile:
         json.dump(lista, outfile, separators=(',', ':'))
 
-response = wcapi.get('products',params={"per_page": 70, "page": 1, "offset": 0}).json()
-print(response)
+def get_products():
 
-productos = []
+  response = wcapi.get('products',params={"per_page": 70, "page": 1, "offset": 0}).json()
+  print(response)
+
+  productos = []
+
+  for elem in response:
+      producto = {}
+
+      producto["id"] = elem["id"]
+      producto["name"] = elem["name"]
+      producto["price"] = elem["price"]
+      producto["regular_price"] = elem["regular_price"]
+      productos.append(producto)
+    
+  return productos
 
 
+productos = get_products()
 
-
-for elem in response:
-    producto = {}
-
-    producto["id"] = elem["id"]
-    producto["name"] = elem["name"]
-    producto["price"] = elem["price"]
-    producto["regular_price"] = elem["regular_price"]
-    productos.append(producto)
-
-fichero_to_json(json_f="productos_wc.json",lista=productos)
+fichero_to_json(json_f="productos_wc.json", lista=productos)
 print(productos)
 
 
