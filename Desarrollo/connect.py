@@ -36,7 +36,13 @@ print(product["slug"])
 #elem = [i for i in response if i["id"] == 1999]
 #print(elem)
 '''
-response = wcapi.get('products').json()
+
+
+def fichero_to_json(json_f="sample.json", lista=""):
+    with open(json_f, "w") as outfile:
+        json.dump(lista, outfile, separators=(',', ':'))
+
+response = wcapi.get('products',params={"per_page": 70, "page": 1, "offset": 0}).json()
 print(response)
 
 productos = []
@@ -53,9 +59,7 @@ for elem in response:
     producto["regular_price"] = elem["regular_price"]
     productos.append(producto)
 
-df = pd.DataFrame.from_dict(productos)
-df.to_excel("productos_wc.xlsx")
-
+fichero_to_json(json_f="productos_wc.json",lista=productos)
 print(productos)
 
 

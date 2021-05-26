@@ -14,12 +14,15 @@ wcapi = API(
 )
 
 
+def fichero_to_json(json_f="sample.json", lista=""):
+    with open(json_f, "w") as outfile:
+        json.dump(lista, outfile, separators=(',', ':'))
 
-def get_orders(status=""):
+def get_orders( status=""):
     '''
     status = (pending, processing, on-hold, completed, cancelled, refunded, failed and trash)
     '''
-    orders = wcapi.get('orders').json()
+    orders = wcapi.get('orders',params={"per_page": 100, "page": 1, "offset": 0}).json()
     print(orders)
     orders_list = []
     for order in orders:
@@ -42,9 +45,11 @@ def get_orders(status=""):
     if status != "":
         return [d for d in orders_list if d["status"] == status]
     
+    '''
     df = pd.DataFrame.from_dict(orders_list)
     df.to_excel("pedidos_wc.xlsx")
-    
+    '''
+    fichero_to_json(lista=orders_list)
     return orders_list
 
 
@@ -53,3 +58,6 @@ for order in get_orders():
 
 for order in get_orders(status="completed"):
     print(order)
+
+
+
