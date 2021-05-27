@@ -4,7 +4,6 @@ from woocommerce import API
 import json
 import pandas as pd
 
-
 wcapi = API(
   url="https://krdrinks.eu",
   consumer_key="ck_0d4cca94752e3bad9196767981098c88c73a7662",
@@ -14,12 +13,7 @@ wcapi = API(
   query_string_auth=True
 )
 
-
-def fichero_to_json(json_f="sample.json", lista=""):
-    with open(json_f, "w") as outfile:
-        json.dump(lista, outfile, separators=(',', ':'))
-
-def get_orders( status=""):
+def get_orders( status="processing"):
     '''
     status = (pending, processing, on-hold, completed, cancelled, refunded, failed and trash)
     '''
@@ -28,6 +22,7 @@ def get_orders( status=""):
     orders_list = []
     for order in orders:
         order_dict = {}
+        order_dict["id"] = order["id"]
         order_dict["number"] = order["number"]
         order_dict["status"] = order["status"]
         order_dict["date_created"] = order["date_created"]
@@ -37,27 +32,59 @@ def get_orders( status=""):
             linea_dict = {}
             linea_dict["id"] = linea["id"]
             linea_dict["sku"] = linea["sku"]
+            linea_dict["name"] = linea["name"]
             linea_dict["quantity"] = linea["quantity"]
             order_dict["productos"].append(linea_dict)
+    
+        if order_dict["status"] == status:
+            orders_list.append(order_dict)
             
 
-        orders_list.append(order_dict)
-
+    '''
     if status != "":
         return [d for d in orders_list if d["status"] == status]
+    '''
     
-    '''
-    df = pd.DataFrame.from_dict(orders_list)
-    df.to_excel("pedidos_wc.xlsx")
-    '''
-    fichero_to_json(lista=orders_list)
     return orders_list
 
-for order in get_orders():
+def fichero_to_json(json_f="sample.json"):
+    '''
+        Params: json_f: Nombre del ficher json en el que guardaremos la información. 
+                        Contiene un valor por defecto en caso de no introducir nada
+    '''
+    lista = get_orders()
+    with open(json_f, "w") as outfile:
+        json.dump(lista, outfile, separators=(',', ':'))
+
+def change_status(status, id_order):
+    '''
+        Params: status: Estado al que actualizamos el pedido
+                id_order: Id del pedido que vamos a actualizar
+    '''
+    print(wcapi.put("orders/"+id_order, data={"status": status}).json())
+
+def delete_order(id_order):
+    '''
+        Params: id_order: Id del pedido que vamos a eliminar
+    '''
+    print(wcapi.delete("orders/"+id_order , params={"force": True}).json())
+
+'''
+for order in get_orders(status="processing"):
     print(order)
 
-for order in get_orders(status="completed"):
-    print(order)
+'''
+
+#Guardar todos los pedidos en un JSON
+#print(fichero_to_json(json_f="pruebanueva.json"))
+
+#Cambio estado de un pedidio (En proceso...)
+#change_status(status="completed", id_order="3013")
+
+#Borrar un pedido 
+#delete_order(id_order="3013")
+
+
 
 
 
