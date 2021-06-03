@@ -69,6 +69,50 @@ def delete_order(id_order):
     '''
     print(wcapi.delete("orders/"+id_order , params={"force": True}).json())
 
+def create_order():
+    data = {
+        "payment_method": "bacs",
+        "payment_method_title": "Direct Bank Transfer",
+        "set_paid": True,
+        "billing": {
+            "first_name": "Prueba",
+            "last_name": "Python Add",
+            "address_1": "969 Market",
+            "address_2": "",
+            "city": "San Francisco",
+            "state": "CA",
+            "postcode": "94103",
+            "country": "US",
+            "email": "john.doe@example.com",
+            "phone": "(555) 555-5555"
+        },
+        "shipping": {
+            "first_name": "Prueba",
+            "last_name": "Python Add",
+            "address_1": "969 Market",
+            "address_2": "",
+            "city": "San Francisco",
+            "state": "CA",
+            "postcode": "94103",
+            "country": "US"
+        },
+        "line_items": [
+            {
+                "product_id": 629,
+                "quantity": 8
+            },
+        ],
+        "shipping_lines": [
+            {
+                "method_id": "flat_rate",
+                "method_title": "Flat Rate",
+                "total": "8.00"
+            }
+        ]
+    }
+
+    print(wcapi.post("orders", data).json())
+
 '''
 for order in get_orders(status="processing"):
     print(order)
@@ -79,10 +123,13 @@ for order in get_orders(status="processing"):
 #print(fichero_to_json(json_f="pruebanueva.json"))
 
 #Cambio estado de un pedidio (En proceso...)
-#change_status(status="completed", id_order="3013")
+#change_status(status="cancelled", id_order="3041")
 
 #Borrar un pedido 
-#delete_order(id_order="3013")
+#delete_order(id_order="3041")
+
+#Crear un pedido
+#create_order()
 
 
 

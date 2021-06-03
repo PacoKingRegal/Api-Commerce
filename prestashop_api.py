@@ -130,7 +130,7 @@ class PrestashopApi:
         
     def get_orders(self, campos=[]):
         #Depende de la API para funcionar, a veces funciona, otras veces dice que no existe, ¿puede ser por tener mas de 4000 pedidos?
-        url = "http://lafabricadegolosinas.com/api/orders/?display=full&filter[date_add]=[2021-01-1,2021-5-31]&date=1&output_format=XML&ws_key=K23MFEIG5L7C41U3LNY377JNC9WV1UDE"
+        url = "http://lafabricadegolosinas.com/api/orders/?display=full&filter[date_add]=[2021-5-1,2021-6-30]&date=1&output_format=XML&ws_key=K23MFEIG5L7C41U3LNY377JNC9WV1UDE"
         params = {}
         print(url)
 
@@ -268,12 +268,12 @@ api = PrestashopApi('http://lafabricadegolosinas.com/api','K23MFEIG5L7C41U3LNY37
 
 #print(api.get_product_by_reference(reference="0200394023001"))
 #print(api.get_product_by_ean(ean="123456789"))
-print(api.add_producto(producto="producto.xml"))
+#print(api.add_producto(producto="producto.xml"))
 
 #api.fichero_to_csv(fichero="Filter",campo="reference",valor="21554", salida="producto_especifico.xlsx")
 #api.fichero_to_csv(fichero="Pedidos",salida="pedidos.xlsx")
 
-#api.fichero_to_json(fichero="Productos", json_f="productes.json")
+api.fichero_to_json(fichero="Pedidos", json_f="pedidos.json")
 #api.fichero_to_json(fichero="Productos", json_f="productes.json", campos=['id', 'reference', 'ean13', 'precio'])
 
 
