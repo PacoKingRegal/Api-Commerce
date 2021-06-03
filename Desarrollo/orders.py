@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from os import stat
 from requests.api import get
 from woocommerce import API
 import json
@@ -47,12 +48,13 @@ def get_orders( status="processing"):
     
     return orders_list
 
-def fichero_to_json(json_f="sample.json"):
+def fichero_to_json(json_f="sample.json", status="processing"):
     '''
         Params: json_f: Nombre del ficher json en el que guardaremos la información. 
                         Contiene un valor por defecto en caso de no introducir nada
+                status: Estado de los pedidos a guardar
     '''
-    lista = get_orders()
+    lista = get_orders(status=status)
     with open(json_f, "w") as outfile:
         json.dump(lista, outfile, separators=(',', ':'))
 
@@ -77,7 +79,7 @@ for order in get_orders(status="processing"):
 '''
 
 #Guardar todos los pedidos en un JSON
-#print(fichero_to_json(json_f="pruebanueva.json"))
+print(fichero_to_json(json_f="pruebanueva.json",status="completed"))
 
 #Cambio estado de un pedidio (En proceso...)
 #change_status(status="cancelled", id_order="3041")
